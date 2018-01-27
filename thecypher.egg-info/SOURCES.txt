@@ -1,0 +1,14 @@
+LICENSE.txt
+MANIFEST.in
+README.rst
+setup.cfg
+setup.py
+data/data_file
+thecypher/__init__.py
+thecypher/package_data.dat
+thecypher.egg-info/PKG-INFO
+thecypher.egg-info/SOURCES.txt
+thecypher.egg-info/dependency_links.txt
+thecypher.egg-info/entry_points.txt
+thecypher.egg-info/requires.txt
+thecypher.egg-info/top_level.txt
