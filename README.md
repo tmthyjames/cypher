@@ -1,4 +1,4 @@
-Welcome to the Cypher
+Welcome to the Cypher. Blog post [here](https://tmthyjames.github.io/tools/Cypher/)
 
 =======================
 
