@@ -57,7 +57,9 @@ def get_lyrics(artist):
                 albums[title]['year'] = album_year
         if node.name == 'ol':
             for song in node:
-                track_node = song.find_all('a')[0]
+                track_a = song.find_all('a')
+                if not track_a: continue
+                track_node = track_a[0]
                 track_name = track_node.text
                 track_href = track_node.get('href')
                 if 'tracks' not in albums[title]:
