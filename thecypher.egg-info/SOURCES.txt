@@ -1,9 +1,13 @@
 LICENSE.txt
 MANIFEST.in
-README.rst
+README.md
 setup.cfg
 setup.py
+data/.DS_Store
 data/data_file
+data/lyrics_test.csv.zip
+data/lyrics_train.csv.zip
+data/lyrics_whole.csv.zip
 thecypher/__init__.py
 thecypher/package_data.dat
 thecypher.egg-info/PKG-INFO

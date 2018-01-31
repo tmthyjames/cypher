@@ -5,17 +5,17 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='thecypher',  
-    version='1.2.1', 
+    version='1.2.2', 
     description='Get music lyrics',
     long_description=long_description,  
     url='https://github.com/tmthyjames/thecypher', 
-    author='The Python Packaging Authority',  
-    author_email='pypa-dev@googlegroups.com', 
+    author='Timothy James Dobbins',  
+    author_email='tmthyjames@gmail.com', 
     classifiers=[  
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
