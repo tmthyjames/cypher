@@ -15,7 +15,7 @@ def uniqueid():
 
 uid = uniqueid()
 
-def get_lyrics(artist):
+def get_lyrics(artist, get_album_genre=False):
     
     """
     Example:
@@ -37,12 +37,12 @@ def get_lyrics(artist):
     req = requests.get(artist_url)
     resp = BS(req.content, 'html')
     
-    genre = 'n/a'
+    genre = ''
     genre_tag = resp.find_all('table', {'class': 'artist-info-box'})
     if genre_tag:
         for atag in resp.find_all('table', {'class': 'artist-info-box'})[0].find_all('a'):
             if 'Category:Genre' in atag.attrs['href']:
-                genre = atag.attrs['href'].split('/')[-1]
+                genre += ('|' if genre else genre) + atag.text
     
     albums = {}
     nodes = resp.find_all('div', {'id': 'mw-content-text'})[0].find_all()
@@ -50,11 +50,15 @@ def get_lyrics(artist):
         if node.name == 'h2':
             if node.find_all('span'):
                 a_tag = node.find_all('a')
+                album_url_span = node.findChild('span', {'class': 'mw-headline'})
+                album_url_a = album_url_span if not album_url_span else album_url_span.findChild('a')
+                album_url = album_url_a if not album_url_a else album_url_a.attrs.get('href')
                 title = 'Misc (0000)' if not a_tag else a_tag[0].text
                 year_search = re.search('([0-9]{4})', title)
                 album_year = None if not year_search else year_search.group(0)
                 albums[title] = {}
                 albums[title]['year'] = album_year
+                albums[title]['album_url'] = None if not album_url else (base_url + album_url)
         if node.name == 'ol':
             for song in node:
                 track_a = song.find_all('a')
@@ -70,6 +74,18 @@ def get_lyrics(artist):
     try:
         album_keys = albums.keys()
         for album in album_keys:
+            album_url = albums[album]['album_url']
+            album_genre = ''
+            if get_album_genre and album_url:
+
+                album_req = requests.get(album_url)
+                album_soup = BS(album_req.content)
+                genre_tag = album_soup.find_all('div', {'id': 'mw-content-text'})
+                if genre_tag:
+                    for atag in album_soup.findChild('div', {'id': 'mw-content-text'}).find_all('a'):
+                        if 'Category:Genre' in atag.attrs['href']:
+                            album_genre += ('|' if album_genre else album_genre) + atag.text
+
             logging.info('GET Artist Album: ' + album)
             track_keys = albums[album].get('tracks')
             if track_keys:
@@ -89,7 +105,8 @@ def get_lyrics(artist):
                                     'year': year,
                                     'album': album,
                                     'id': uid.next(),
-                                    'genre': genre
+                                    'genre': genre,
+                                    'album_genre': album_genre
                                 }
                                 lyrics_obj.append(lyric_dict)
             logging.info('GET Artist Album Successful: ' + album)
