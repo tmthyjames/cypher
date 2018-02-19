@@ -1,5 +1,7 @@
 Welcome to the Cypher. Blog post [here](https://tmthyjames.github.io/tools/Cypher/)
 
+Here are a couple other blog posts that use Cypher to get data: [Analyzing Rap Lyrics Using Word Vectors](https://tmthyjames.github.io/posts/Analyzing-Rap-Lyrics-Using-Word-Vectors/) and [Using Lyrics to Predict Genre](https://tmthyjames.github.io/posts/Predicting-Musical-Genres/)
+
 =======================
 
 Easily get music lyrics
