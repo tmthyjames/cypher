@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup as BS
 from bs4.element import NavigableString
 import logging
 import random
+import six
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
 
 def uniqueid():
     seed = random.getrandbits(1)
@@ -13,15 +15,17 @@ def uniqueid():
         yield seed
         seed += 1
 
+
 uid = uniqueid()
 
+
 def get_lyrics(artist, get_album_genre=False):
-    
+
     """
     Example:
         lyrics = get_lyrics('madonna')
     """
-    
+
     base_url = 'http://lyrics.wikia.com'
     url_ext = '/wiki/'
 
@@ -29,21 +33,21 @@ def get_lyrics(artist, get_album_genre=False):
     search_resp = requests.get(search_url)
     soup = BS(search_resp.content)
     results = soup.find_all('a', {'class': 'result-link'})
-    
+
     artist_url = results[0].attrs['href']
-    
+
     logging.info('GET Artist URL: ' + artist_url)
-    
+
     req = requests.get(artist_url)
     resp = BS(req.content, 'html')
-    
+
     genre = ''
     genre_tag = resp.find_all('table', {'class': 'artist-info-box'})
     if genre_tag:
         for atag in resp.find_all('table', {'class': 'artist-info-box'})[0].find_all('a'):
             if 'Category:Genre' in atag.attrs['href']:
                 genre += ('|' if genre else genre) + atag.text
-    
+
     albums = {}
     nodes = resp.find_all('div', {'id': 'mw-content-text'})[0].find_all()
     for node in nodes:
@@ -62,7 +66,8 @@ def get_lyrics(artist, get_album_genre=False):
         if node.name == 'ol':
             for song in node:
                 track_a = song.find_all('a')
-                if not track_a: continue
+                if not track_a:
+                    continue
                 track_node = track_a[0]
                 track_name = track_node.text
                 track_href = track_node.get('href')
@@ -104,12 +109,12 @@ def get_lyrics(artist, get_album_genre=False):
                                     'song': song,
                                     'year': year,
                                     'album': album,
-                                    'id': uid.next(),
+                                    'id': six.next(uid),
                                     'genre': genre,
                                     'album_genre': album_genre
                                 }
                                 lyrics_obj.append(lyric_dict)
             logging.info('GET Artist Album Successful: ' + album)
         return lyrics_obj
-    except KeyboardInterrupt as ki:
+    except KeyboardInterrupt:
         return lyrics_obj
