@@ -104,7 +104,7 @@ def get_lyrics(artist, get_album_genre=False):
                                     'song': song,
                                     'year': year,
                                     'album': album,
-                                    'id': uid.next(),
+                                    'id': next(uid),
                                     'genre': genre,
                                     'album_genre': album_genre
                                 }
