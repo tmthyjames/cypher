@@ -30,7 +30,7 @@ setup(
     ],
     keywords='thecypher setuptools development',  
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  
-    install_requires=['requests', 'beautifulsoup4'],  
+    install_requires=['requests', 'beautifulsoup4', 'six'],
     extras_require={  
         'dev': ['check-manifest'],
         'test': ['coverage'],
