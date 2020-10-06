@@ -1,3 +1,5 @@
+# Lyrics Wikia has been shut down and this project has been deprecated. 
+
 Welcome to the Cypher. Blog post [here](https://tmthyjames.github.io/2018/january/Cypher/)
 
 Here are a couple other blog posts that use Cypher to get data: [Analyzing Rap Lyrics Using Word Vectors](https://tmthyjames.github.io/2018/january/Analyzing-Rap-Lyrics-Using-Word-Vectors/) and [Using Lyrics to Predict Genre](https://tmthyjames.github.io/2018/february/Predicting-Musical-Genres/)
@@ -99,6 +101,3 @@ Convert it to a pandas DataFrame like so:
     </tr>
   </tbody>
 </table>
-
-
-
