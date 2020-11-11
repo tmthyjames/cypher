@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>dc.js - Filtering Example</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.css" />
+	<link href="css/keen.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css"/>
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+	<script src="js/jquery.js"></script>
+	<script src="js/d3.js"></script>
+	<script src="js/d3plus.js"></script>
+	<script type="text/javascript" src="js/datatables.min.js"></script>
+	<script type="text/javascript" src="js/datatables.bootstrap.min.js"></script>
+</head>
+
+<style>
+.chart-stage{
+	height: 400px;
+	overflow-y: auto;
+}
+#scatterLeftphrase{
+	padding-right:10em
+}
+.center {
+    margin: auto;
+    margin-top: 20px;
+    width: 60%;
+    border: 3px solid #3182bd;
+    padding: 10px;
+}
+#text{
+	height:350px;
+	padding-right: 5px;
+	padding-left: 5px;
+	overflow-y: auto;
+	border: 1px solid lightgray;
+}
+.input-xs {
+  height: 22px;
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
+  border-radius: 3px;
+}
+.underline{
+	text-decoration: underline;
+}
+.input-sm{
+	height: 20px;
+}
+</style>
+
+<body class="keen-dashboard" style="padding-top: 80px;">
+
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Lyric Analyzer</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          	<span id="scatterLeftphrase">The most alt rock rappers</span>
+				<svg height="10" width="10">
+				  <circle cx="5" cy="5" r="5" stroke-width="" fill="#3182bd"/>
+				</svg> Hip_Hop
+				<svg height="10" width="10">
+				  <circle cx="5" cy="5" r="5" stroke-width="" fill="#31a354"/>
+				</svg> Alt_Rock
+				<svg height="10" width="10">
+				  <circle cx="5" cy="5" r="5" stroke-width="" fill="#e6550d"/>
+				</svg> Country
+			</span>
+          </div>
+          <div class="chart-stage">
+			<form class="form-inline">
+				<select type="text" class="form-control mb-2 mr-sm- input-xs" id="genre2left" placeholder="Genre 1">
+				<option selected="selected">Hip_Hop</option>
+				<option>Alt_Rock</option>
+				<option>Country</option>
+				</select> songs that have 
+				<select type="text" class="form-control mb-2 mr-sm- input-xs" id="genre1left" placeholder="Genre 2">
+				<option>Hip_Hop</option>
+				<option selected="selected">Alt_Rock</option>
+				<option>Country</option>
+				</select> lyrics 
+			  <button type="submit" class="btn btn-primary btn-xs mb-2" id="submitScatterOne">Submit</button>
+			</form>
+			<div id="scatterLeft"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title" id="scatterRightphrase">The top 100 alt rock rappers</div>
+          <div class="chart-stage" id="scatterRight">
+			<table id="table" class="display table table-striped table-bordered" cellspacing="0" width="100%">
+		        <thead>
+		            <tr>
+		                <th>Genre</th>
+		                <th>Artist</th>
+		                <th>Song</th>
+		                <th>Hip_Hop</th>
+		                <th>Alt_Rock</th>
+		                <th>Country</th>
+		            </tr>
+		        </thead>
+		    </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="row">
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title" id="tfidf-words">
+            The most alt rock words weighted by tf-idf
+          </div>
+          <div class="chart-stage">
+          	<div id="text">
+				<div class="center">
+				  <p><b>Click on a song in the scatter plot to see more</b></p>
+				</div>
+			</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title" id="tfidf-scores">
+            tf-idf scores for each genre
+          </div>
+          <div class="chart-stage" id="tfidfchart">
+			<div class="center">
+			  <p><b>Click on a song in the scatter plot to see more</b></p>
+			</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+<script>
+
+$.get('tfidf_bank10.json', function(tfidfBank){
+		
+	$.get('data-sample.json', function(data){
+
+		console.log(data)
+
+		var colors = {
+			'Country': {
+				'heavy': '#e6550d',
+				'medium': '#fd8d3c',
+				'light': '#fdbe85'
+			},
+			'Hip_Hop': {
+				'heavy': '#3182bd',
+				'medium': '#6baed6',
+				'light': '#bdd7e7'
+			},
+			'Alt_Rock': {
+				'heavy': '#31a354',
+				'medium': '#74c476',
+				'light': '#bae4b3'
+			}
+		};
+
+		var phrases = {
+			'Hip_Hop1': 'hip hop',
+			'Alt_Rock1': 'alt rock',
+			'Country1': 'country',
+			'Hip_Hop2': 'hip hop songs',
+			'Alt_Rock2': 'alt rock songs',
+			'Country2': 'country songs' 
+		};
+
+		var colOrder = {
+			'Hip_Hop': 3,
+			'Alt_Rock': 4,
+			'Country': 5
+		}
+
+		var table;
+
+		var drawScatter = function(data_, genre1, genre2, selector){
+
+			var filteredData = data_.filter(function(d){
+				return (d.ranker_genre == genre2)
+			}).sort(function(a,b){
+				return b[genre1] - a[genre1];
+			}).slice(1, 100);
+
+			if (!table){
+			    table = $('#table').DataTable( {
+			        "scrollY":        "280px",
+			        "scrollCollapse": false,
+			        "paging":         false,
+			        "data": filteredData,
+			        "order": [[ colOrder[genre1], "desc" ]],
+			        "columns": [
+			            { "data": "ranker_genre" },
+			            { "data": "artist" },
+			            { "data": "song" },
+			            { "data": "Hip_Hop"},
+			            { "data": "Alt_Rock"},
+			            { "data": "Country"},
+			        ]
+			    } );
+			} else {
+				table.search('').draw();
+				table
+					.clear()
+					.rows
+					.add(filteredData)
+					.order([ colOrder[genre1], "desc" ])
+					.draw();
+			}
+			console.log(genre1, genre2)
+			var visualization = d3plus.viz()
+				.container(selector)
+				.data(filteredData)
+				.color(function(d){
+					return colors[d.ranker_genre].heavy
+				})
+				.type("scatter")    
+				.id("songScore")
+				.text(function(d){
+					return d.song;
+				})
+				.tooltip(["album", "artist", "song", "year"])
+				.x({
+					value: genre2
+				})
+				.y({
+					value: genre1
+				})
+				.size(10)
+				.height(350)
+				.width(600)
+				.mouse({
+					click: function(d){
+
+						table.search(d.song).draw();
+
+						var genreScores = [];
+
+						var lyrics = d.lyric.split(' ');
+						var htmlString = '';
+						for (var i in lyrics){
+							var bgcolor = 'white',
+								word = lyrics[i],
+								tfidf1 = (tfidfBank[genre1][word] ? tfidfBank[genre1][word].tfidf : 0)*100,
+								tfidf2 = (tfidfBank[genre2][word] ? tfidfBank[genre2][word].tfidf : 0)*100,
+								genre1tf = (tfidfBank[genre1][word] ? tfidfBank[genre1][word].tf : 0),
+								genre2tf = (tfidfBank[genre2][word] ? tfidfBank[genre2][word].tf : 0);
+								if (tfidf1 > 0 || tfidf2 > 0){
+									genreScores.push({
+										word: word,
+										tfidf1: tfidf1,
+										tfidf2: tfidf2,
+										color: (tfidf2 > tfidf1 ? colors[genre2].heavy : colors[genre1].heavy),
+										song: d.song,
+										artist: d.artist,
+										tf: Math.max(genre1tf, genre2tf)
+									});
+								}
+							if (tfidf1>tfidf2) bgcolor = colors[genre1].medium;
+							else if (tfidf1<tfidf2) bgcolor = colors[genre2].medium
+							else if (tfidf1 > 0) bgcolor = colors[genre1].medium
+							htmlString += ' <span style="background-color: '+bgcolor+'">' + word + '</span> '
+						}
+
+						$('#tfidfchart').empty();
+
+						var visualizationTfidf = d3plus.viz()
+							.container("#tfidfchart")
+							.data(genreScores)
+							.order({
+								"value": "tf",
+								"sort": "asc"
+							})
+							.color(function(d){
+								return d.color;
+							})
+							.legend(false)
+							.type("scatter")    
+							.id("word")
+							.text(function(d){
+								return d.word;
+							})
+							.tooltip(["word", "song", "artist"])
+							.x({
+								value: "tfidf2",
+								label: genre2 + " tf-idf"
+							})
+							.y({
+								value: "tfidf1",
+								label: genre1 + " tf-idf"
+							})
+							.size(function(d){
+								return (d.tf)
+							})
+							.height(350)
+							.width(600)
+							.draw();
+
+						$('#text').html(htmlString)
+						$('#tfidf-words').html("The most " + phrases[genre1+"1"] + ' words weighted by tf-idf for <span class="underline">' + d.song + "</span>")
+						$('#tfidf-scores').html("tf-idf scores for " + 'for <span class="underline">' + d.song + '</span>')
+					}
+				})
+				.draw()
+
+			$(selector+"phrase")
+				.text(
+					(selector == "#scatterLeft" ? 'The most ' : "The top 100 ") + 
+					phrases[genre1+"1"] + " " + 
+					phrases[genre2+"2"]
+				)
+			$('#scatterRightphrase').text('The top 100 ' + phrases[genre1+"1"] + ' ' + phrases[genre2+"2"]);
+		}
+
+		drawScatter(data, 'Alt_Rock', 'Hip_Hop', '#scatterLeft');
+
+		$('#submitScatterOne').on('click', function(e){
+			$('#scatterLeft').empty();
+			var genre1 = $('#genre1left').find(":selected").text();
+			var genre2 = $('#genre2left').find(":selected").text();
+			drawScatter(data, genre1, genre2, '#scatterLeft');
+		});
+
+	});
+});
+</script>
+
+</body>
+</html>
